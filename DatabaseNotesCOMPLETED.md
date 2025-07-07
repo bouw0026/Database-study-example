@@ -98,7 +98,7 @@
 - **Dependency:** Weak entities require strong entities (e.g., Enrollment needs Student and Course)
 - **Multi-valued Attributes:** Resolve with separate tables (e.g., Student_Hobbies table)
 
----
+```
 
 ## 📊 Complete ER Diagram
 
@@ -126,8 +126,6 @@ erDiagram
         DEPARTMENT ||--o{ COURSE : "manages"
         PROFESSOR ||--o{ COURSE_ASSIGNMENT : "teaches"
 ```
-
----
 
 ## 🔄 Normalization Process
 
