@@ -484,19 +484,19 @@ GROUP BY p.professor_id;
 
 - The same visualization approach works for:
         - **Hospital Systems:**
-                ```mermaid
-                erDiagram
-                        Departments ||--o{ Doctors : employs
-                        Patients ||--o{ Appointments : schedules
-                        Doctors ||--o{ Appointments : attends
-                ```
-        - **Inventory Management:**
-                ```mermaid
-                erDiagram
-                        Warehouses ||--o{ Inventory : stores
-                        Products ||--o{ Inventory : contains
-                        Suppliers ||--o{ PurchaseOrders : supplies
-                ```
+```mermaid
+erDiagram
+Departments ||--o{ Doctors : employs
+Patients ||--o{ Appointments : schedules
+Doctors ||--o{ Appointments : attends
+```
+- **Inventory Management:**
+```mermaid
+erDiagram
+Warehouses ||--o{ Inventory : stores
+Products ||--o{ Inventory : contains
+Suppliers ||--o{ PurchaseOrders : supplies
+```
 
 ---
 
