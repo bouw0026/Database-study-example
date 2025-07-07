@@ -665,4 +665,124 @@ SELECT CONCAT('mysqldump -u ac_admin -p algonquin > algonquin_backup_', DATE_FOR
 AS 'Backup Command';
 ```
 
+# MySQL Database Tutorial: Algonquin College Academic Management System
+
+<!--
+    ## 🗂️ Key Terms Index
+    This index provides quick definitions for key MySQL commands and concepts.  
+    Hover over any command in the guide to see its meaning (GitHub: hover preview via markdown footnotes).
+-->
+
+## 🗂️ Key Terms Index
+
+| **Command/Concept**      | **Definition**                                                                 |
+|--------------------------|-------------------------------------------------------------------------------|
+| [`CREATE TABLE`](#create-table)        | Defines a new table in the database. |
+| [`PRIMARY KEY`](#primary-key)          | Uniquely identifies each row in a table. |
+| [`FOREIGN KEY`](#foreign-key)          | Enforces a link between tables. |
+| [`INDEX`](#index)                      | Improves query speed by allowing faster lookups. |
+| [`CHECK`](#check)                      | Restricts values allowed in a column. |
+| [`AUTO_INCREMENT`](#auto-increment)    | Automatically increases integer value for new rows. |
+| [`UNIQUE`](#unique)                    | Ensures all values in a column are different. |
+| [`ENGINE=InnoDB`](#engineinnodb)       | Sets the storage engine for the table. |
+| [`CREATE USER`](#create-user)          | Adds a new user to the MySQL server. |
+| [`GRANT`](#grant)                      | Gives privileges to users or roles. |
+| [`CREATE ROLE`](#create-role)          | Defines a set of privileges that can be assigned to users. |
+| [`DELIMITER`](#delimiter)              | Changes the statement delimiter (for procedures/functions). |
+| [`CREATE PROCEDURE`](#create-procedure)| Defines a stored procedure (reusable SQL logic). |
+| [`CREATE FUNCTION`](#create-function)  | Defines a stored function (returns a value). |
+| [`INSERT INTO`](#insert-into)          | Adds new rows to a table. |
+| [`SELECT`](#select)                    | Retrieves data from one or more tables. |
+| [`DROP`](#drop)                        | Removes a database, table, user, or role. |
+| [`ALTER`](#alter)                      | Modifies an existing database object. |
+| [`PARTITION BY`](#partition-by)        | Splits table data for performance. |
+| [`VIEW`](#view)                        | Creates a virtual table based on a query. |
+| [`TRIGGER`](#trigger)                  | Executes logic automatically on table events. |
+| [`TRANSACTION`](#transaction)          | Groups SQL statements to execute as a unit. |
+| [`ACID`](#acid)                        | Atomicity, Consistency, Isolation, Durability (transaction properties). |
+| [`mysqldump`](#mysqldump)              | Command-line tool to back up a MySQL database. |
+
+---
+
+> **How to use:**  
+> On GitHub, hover over any command (e.g., [`CREATE TABLE`](#create-table)) to see its definition from the Key Terms Index above.  
+>  
+> In the code and table below, key commands are now wrapped in backticks and linked to their definitions for quick reference.
+
+---
+
+## Example (with pointers):
+
+```sql
+[`CREATE TABLE`](#create-table) Students (
+        student_id BIGINT [`PRIMARY KEY`](#primary-key),
+        first_name VARCHAR(50) NOT NULL,
+        email VARCHAR(120) [`UNIQUE`](#unique)
+);
+```
+
+---
+
+## 📝 Table: MySQL Concepts, Definitions, and Examples
+
+| **Command/Concept**      | **Definition**                                                                 | **MySQL Example**                                                                                       | **Project Example**                                                                                   |
+|--------------------------|-------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| [`Strong Entity`](#create-table)        | Table with its own primary key, independent existence                         | [`CREATE TABLE`](#create-table) Departments (...);                                                                       | [`CREATE TABLE`](#create-table) Students (...);                                                                        |
+| [`Weak Entity`](#foreign-key)          | Table dependent on another table (uses FK)                                    | [`CREATE TABLE`](#create-table) Enrollments (..., [`FOREIGN KEY`](#foreign-key) (student_id) REFERENCES Students(student_id));             | [`CREATE TABLE`](#create-table) Prerequisites (...);                                                                   |
+| [`Primary Key (PK)`](#primary-key)     | Uniquely identifies each row in a table                                       | [`PRIMARY KEY`](#primary-key) (dept_id)                                                                                 | [`PRIMARY KEY`](#primary-key) (student_id)                                                                            |
+| [`Foreign Key (FK)`](#foreign-key)     | Enforces link between tables                                                  | [`FOREIGN KEY`](#foreign-key) (dept_id) REFERENCES Departments(dept_id)                                                 | [`FOREIGN KEY`](#foreign-key) (program_id) REFERENCES Programs(program_id)                                            |
+| [`1NF`](#create-table)                  | Atomic columns, no repeating groups                                           | [`CREATE TABLE`](#create-table) Courses (title VARCHAR(100));                                                            | Each course has one title, not a list                                                                 |
+| [`2NF`](#create-table)                  | 1NF + no partial dependency on PK                                             | Split tables to remove partial dependencies                                                             | Separate Programs and Departments tables                                                          |
+| [`3NF`](#create-table)                  | 2NF + no transitive dependency                                                | Remove columns dependent on non-PK attributes                                                           | Move department name to Departments table                                                           |
+| [`Index`](#index)                | Improves query speed                                                          | [`CREATE INDEX`](#index) idx_name ON Students(last_name);                                                         | [`CREATE INDEX`](#index) idx_enrollment_grade ON Enrollments(grade);                                            |
+| [`Transaction`](#transaction)          | Group of SQL statements executed as a unit                                    | `START TRANSACTION; ... COMMIT;`                                                                        | Enroll student and update seat count together                                                         |
+| [`ACID Properties`](#acid)      | Atomicity, Consistency, Isolation, Durability                                 | Use transactions and InnoDB engine                                                                      | All enrollment steps succeed or fail together                                                         |
+| [`Stored Procedure`](#create-procedure)     | Saved SQL logic for reuse                                                     | [`CREATE PROCEDURE`](#create-procedure) RegisterStudent(...) BEGIN ... END;                                                  | `CALL RegisterStudent(100123456, 'CST8284', 'W2024');`                                                |
+| [`Trigger`](#trigger)              | Auto-executes on table events                                                 | [`CREATE TRIGGER`](#trigger) before_insert ...                                                                      | Update seat count after enrollment                                                                    |
+| [`View`](#view)                 | Virtual table based on query                                                  | [`CREATE VIEW`](#view) StudentCourses AS SELECT ...                                                              | [`CREATE VIEW`](#view) ProgramSummary AS SELECT ...                                                            |
+| [`Partitioning`](#partition-by)         | Splits table data for performance                                             | [`CREATE TABLE`](#create-table) Enrollments (...) [`PARTITION BY`](#partition-by) RANGE (semester);                                         | Partition enrollments by semester                                                                     |
+| [`Normalization`](#create-table)        | Process to reduce redundancy, improve integrity                               | Apply 1NF, 2NF, 3NF steps                                                                               | Separate Departments, Programs, Courses                                                         |
+| [`Denormalization`](#create-table)      | Add redundancy for performance                                                | Add department name to Programs table                                                                 | Store department name in Programs for faster reads                                                  |
+| [`ER Diagram`](#er-diagram)           | Visual representation of entities/relations                                   | Use MySQL Workbench ERD tool                                                                            | Diagram showing Students, Courses, Enrollments                                                  |
+| [`Composite Key`](#primary-key)        | PK made of multiple columns                                                   | [`PRIMARY KEY`](#primary-key) (course_code, prereq_code)                                                                | Prerequisites table PK                                                                              |
+| [`Referential Integrity`](#foreign-key)| Ensures FK values exist in parent table                                       | [`FOREIGN KEY`](#foreign-key) (dept_id) REFERENCES Departments(dept_id)                                                 | Can't assign a program to a non-existent department                                                   |
+
+---
+
+## Footnotes for Key Terms
+
+- <a name="create-table"></a>**CREATE TABLE**: Defines a new table in the database.
+- <a name="primary-key"></a>**PRIMARY KEY**: Uniquely identifies each row in a table.
+- <a name="foreign-key"></a>**FOREIGN KEY**: Enforces a link between tables.
+- <a name="index"></a>**INDEX**: Improves query speed by allowing faster lookups.
+- <a name="check"></a>**CHECK**: Restricts values allowed in a column.
+- <a name="auto-increment"></a>**AUTO_INCREMENT**: Automatically increases integer value for new rows.
+- <a name="unique"></a>**UNIQUE**: Ensures all values in a column are different.
+- <a name="engineinnodb"></a>**ENGINE=InnoDB**: Sets the storage engine for the table.
+- <a name="create-user"></a>**CREATE USER**: Adds a new user to the MySQL server.
+- <a name="grant"></a>**GRANT**: Gives privileges to users or roles.
+- <a name="create-role"></a>**CREATE ROLE**: Defines a set of privileges that can be assigned to users.
+- <a name="delimiter"></a>**DELIMITER**: Changes the statement delimiter (for procedures/functions).
+- <a name="create-procedure"></a>**CREATE PROCEDURE**: Defines a stored procedure (reusable SQL logic).
+- <a name="create-function"></a>**CREATE FUNCTION**: Defines a stored function (returns a value).
+- <a name="insert-into"></a>**INSERT INTO**: Adds new rows to a table.
+- <a name="select"></a>**SELECT**: Retrieves data from one or more tables.
+- <a name="drop"></a>**DROP**: Removes a database, table, user, or role.
+- <a name="alter"></a>**ALTER**: Modifies an existing database object.
+- <a name="partition-by"></a>**PARTITION BY**: Splits table data for performance.
+- <a name="view"></a>**VIEW**: Creates a virtual table based on a query.
+- <a name="trigger"></a>**TRIGGER**: Executes logic automatically on table events.
+- <a name="transaction"></a>**TRANSACTION**: Groups SQL statements to execute as a unit.
+- <a name="acid"></a>**ACID**: Atomicity, Consistency, Isolation, Durability (transaction properties).
+- <a name="mysqldump"></a>**mysqldump**: Command-line tool to back up a MySQL database.
+- <a name="er-diagram"></a>**ER Diagram**: Visual representation of entities and their relationships.
+
+---
+
+> **Tip:**  
+> On GitHub, you can hover over any linked command (e.g., [`CREATE TABLE`](#create-table)) to see its definition in the Key Terms Index or Footnotes above.
+
+---
+
+
 
