@@ -42,7 +42,7 @@ Key Features:
 | `Professor`  | Faculty teaching courses            |
 | `Course`     | Courses with program mapping        |
 | `Enrollment` | Semester-based student registrations|
-
+```
 ### 2. Entity Relationships
 ```mermaid
 erDiagram
@@ -54,8 +54,8 @@ erDiagram
 ```
 
 📊 Complete ER Diagram
-
-```erDiagram
+```mermaid
+erDiagram
     STUDENT {
         bigint student_id PK
         varchar(100) name
