@@ -198,10 +198,10 @@ CREATE TABLE Professors (
 - **Relationship:** Linked to Departments; source for Course_Assignments.
 - **Key Variables:** `email` (`LIKE` constraint for domain validation).
 - **MySQL Tip:** Surrogate `professor_id` simplifies assignments even if professor names change.
-```sql
 ---
 
 ### 🏗️ Courses Table
+```sql
 CREATE TABLE Courses (
     course_code CHAR(7) PRIMARY KEY CHECK (course_code REGEXP '^[A-Z]{3}[0-9]{4}$'),
     title VARCHAR(100) NOT NULL,
