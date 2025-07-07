@@ -66,9 +66,8 @@ This guide is designed for beginners aiming for Bloom's Taxonomy Tier 6 (Create/
 
 ---
 
-## 📊 ER Diagram: Database Design Overview
+### 1.1 Why ER Diagrams?
 
-**Why ER Diagrams?**  
 Entity-Relationship diagrams help visualize tables, relationships, and cardinality before coding. Analyzing these diagrams ensures your design is normalized and free from redundancy.
 
 ```mermaid
@@ -83,12 +82,86 @@ erDiagram
     Courses ||--o{ Course_Assignments : "assigned"
 ```
 
-**Relationships:**
-- Departments → Programs (1:M)
-- Programs → Students (1:M)  
-- Students ↔ Courses (M:N via Enrollments)
-- Courses → Prerequisites (1:M)
-- Professors ↔ Courses (M:N via Course_Assignments)
+---
+
+### 1.2 Table Design Rationale & Key Terms
+
+#### **Departments**
+- **Why:** Represents academic divisions. Each department can offer multiple programs.
+- **Design:** Strong entity with a surrogate key (`dept_id`), and a unique department name.
+- **Key Terms:**
+  - **Strong Entity:** Exists independently (see [Strong Entity](#strong-entity)).
+  - **Surrogate Key:** System-generated unique identifier (`dept_id`).
+
+#### **Programs**
+- **Why:** Represents academic programs within departments. Each program belongs to one department.
+- **Design:** Strong entity with a surrogate key (`program_id`), unique name, minimum credits, and foreign key to Departments.
+- **Key Terms:**
+  - **Foreign Key:** Links to Departments (`dept_id`), enforcing referential integrity.
+  - **Normalization:** Separates Programs from Departments to avoid redundancy.
+
+#### **Students**
+- **Why:** Represents learners enrolled in programs. Each student is in one program.
+- **Design:** Strong entity with a natural key (`student_id`), personal info, and foreign key to Programs.
+- **Key Terms:**
+  - **Strong Entity:** Independent existence.
+  - **Natural Key:** Real-world identifier (`student_id`).
+  - **Derived Attribute:** Age can be calculated from `birth_date`.
+
+#### **Professors**
+- **Why:** Represents faculty members. Each professor belongs to a department.
+- **Design:** Strong entity with surrogate key (`professor_id`), personal info, and foreign key to Departments.
+- **Key Terms:**
+  - **Surrogate Key:** `professor_id` auto-increment.
+  - **Foreign Key:** `department_id` links to Departments.
+
+#### **Courses**
+- **Why:** Represents courses offered by programs. Each course has a unique code.
+- **Design:** Strong entity with a natural key (`course_code`), title, credits, and description.
+- **Key Terms:**
+  - **Strong Entity:** Exists independently.
+  - **Check Constraint:** Ensures course code format and credit range.
+
+#### **Enrollments**
+- **Why:** Tracks which students are registered in which courses and semesters.
+- **Design:** Weak entity with surrogate key (`enrollment_id`), foreign keys to Students and Courses, semester, and grade.
+- **Key Terms:**
+  - **Weak Entity:** Depends on Students and Courses.
+  - **Foreign Key:** Links to Students and Courses.
+  - **Surrogate Key:** `enrollment_id` as unique identifier.
+  - **Composite Key (alternative):** Could use (student_id, course_code, semester).
+
+#### **Prerequisites**
+- **Why:** Models course prerequisite relationships.
+- **Design:** Weak entity with composite primary key (`course_code`, `prereq_code`), both foreign keys to Courses.
+- **Key Terms:**
+  - **Composite Key:** Combination of `course_code` and `prereq_code`.
+  - **Referential Integrity:** Both columns reference Courses.
+
+#### **Course_Assignments**
+- **Why:** Tracks which professors teach which courses in which semesters.
+- **Design:** Weak entity with surrogate key (`assignment_id`), foreign keys to Courses and Professors, and semester.
+- **Key Terms:**
+  - **Surrogate Key:** `assignment_id`.
+  - **Foreign Key:** Links to Courses and Professors.
+
+---
+
+## 🎓 Key Terminology
+
+| Term              | Definition                                                | MySQL Example                                                     | College Example                      |
+|-------------------|-----------------------------------------------------------|-------------------------------------------------------------------|--------------------------------------|
+| Conceptual Design | High-level entities and interactions without attributes   | N/A                                                               | Initial ER diagram                   |
+| Logical Design    | Adds attributes, keys, and data types                     | CREATE TABLE Students(...)                                        | Full ERD with attributes             |
+| Physical Design   | DBMS-specific implementation                              | ENGINE=InnoDB, PARTITION BY RANGE                                 | Optimized schema                     |
+| Max Cardinality   | Maximum relationships an entity can have (1 or M)         | Determined via "One Professor teaches ______ Courses"             | Professor-Course (1:M)               |
+| Min Cardinality   | Whether relationship is mandatory (1) or optional (0)     | NOT NULL vs. NULL                                                 | Course requires Professor            |
+| Strong Entity     | Independent objects that exist on their own               | CREATE TABLE Students (id INT PRIMARY KEY, ...);                  | Students table                       |
+| Weak Entity       | Depends on a strong entity for existence                  | CREATE TABLE Enrollment (..., FOREIGN KEY...);                    | Enrollment records                   |
+| Composite Key     | Primary key consisting of multiple columns                | PRIMARY KEY (student_id, course_code, semester)                   | Enrollment records                   |
+| Surrogate Key     | System-generated meaningless identifier                   | professor_id INT AUTO_INCREMENT                                   | Professor IDs                        |
+| Normalization     | Organizing data to minimize redundancy                    | -- 3NF implementation separating Students, Programs, Departments  | Academic structure                   |
+| Derived Attribute | Calculated value not stored in DB                         | SELECT TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) AS age          | Student age                          |
 
 ---
 
