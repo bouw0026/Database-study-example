@@ -132,18 +132,20 @@ FLUSH PRIVILEGES;
 
 ### 2.3 Create Strong Entities
 
+### 🏗️ Departments Table
 ```sql
 CREATE TABLE Departments (
     dept_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
 ) ENGINE=InnoDB;
 ```
-### 🏗️ Departments Table
 - **Why exist?** Foundation of academic structure; prevents duplicate department info across programs.
 - **Relationship:** Parent entity for Programs/Professors; enables college-wide reporting.
 - **Key Variables:** `name` (unique constraint prevents duplicates).
 - **MySQL Tip:** Use `AUTO_INCREMENT` surrogate keys instead of names as PK to simplify FK references.
+---
 
+### 🏗️ Programs Table
 ```sql
 CREATE TABLE Programs (
     program_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -153,13 +155,13 @@ CREATE TABLE Programs (
     FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)
 ) ENGINE=InnoDB;
 ```
-
-### 🏗️ Programs Table
 - **Why exist?** Models distinct academic pathways; separates program-specific logic from departments.
 - **Relationship:** Bridge between Departments ↔ Students; enables "program enrollment" analytics.
 - **Key Variables:** `min_credits` (`CHECK` constraint ensures ≥60).
 - **Transferable:** Use `DEFAULT` constraints for business rules (e.g., default min credits).
+---
 
+### 🏗️ Students Table
 ```sql
 CREATE TABLE Students (
     student_id BIGINT PRIMARY KEY CHECK (student_id BETWEEN 100000000 AND 999999999),
@@ -172,15 +174,15 @@ CREATE TABLE Students (
     FOREIGN KEY (program_id) REFERENCES Programs(program_id)
 ) ENGINE=InnoDB;
 ```
-
-### 🏗️ Students Table
 - **Why exist?** Core entity for all academic activities; centralizes student data.
 - **Relationship:** Source for Enrollments; connects to Programs via `program_id`.
 - **Key Variables:**  
     - `student_id` (natural key with `CHECK` for 9-digit format)  
     - `email` (`REGEXP` ensures institutional email format)
 - **Cool Tip:** Compute age via `TIMESTAMPDIFF(YEAR, birth_date, CURDATE())` instead of storing it.
+---
 
+### 🏗️ Professors Table
 ```sql
 CREATE TABLE Professors (
     professor_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -192,14 +194,14 @@ CREATE TABLE Professors (
     FOREIGN KEY (department_id) REFERENCES Departments(dept_id)
 ) ENGINE=InnoDB;
 ```
-
-### 🏗️ Professors Table
 - **Why exist?** Manages faculty assignments; separates HR data from course logic.
 - **Relationship:** Linked to Departments; source for Course_Assignments.
 - **Key Variables:** `email` (`LIKE` constraint for domain validation).
 - **MySQL Tip:** Surrogate `professor_id` simplifies assignments even if professor names change.
-
 ```sql
+---
+
+### 🏗️ Courses Table
 CREATE TABLE Courses (
     course_code CHAR(7) PRIMARY KEY CHECK (course_code REGEXP '^[A-Z]{3}[0-9]{4}$'),
     title VARCHAR(100) NOT NULL,
@@ -207,19 +209,17 @@ CREATE TABLE Courses (
     description TEXT
 ) ENGINE=InnoDB;
 ```
-
-### 🏗️ Courses Table
 - **Why exist?** Catalog master; ensures course consistency across enrollments/prerequisites.
 - **Relationship:** Hub for Enrollments, Prerequisites, and Assignments.
 - **Key Variables:**  
     - `course_code` (natural key with `REGEXP` for format validation)  
     - `credits` (`CHECK` constraint limits 1-6 credits)
 - **Transferable:** Use `CHAR` for fixed-length codes (faster joins than `VARCHAR`).
-
 ---
 
 ### 2.4 Create Weak Entities & Relationships
 
+### 🔗 Enrollments Table
 ```sql
 CREATE TABLE Enrollments (
     enrollment_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -231,7 +231,6 @@ CREATE TABLE Enrollments (
     FOREIGN KEY (course_code) REFERENCES Courses(course_code)
 ) ENGINE=InnoDB;
 ```
-### 🔗 Enrollments Table
 - **Why exist?** Resolves M:N relationship between Students ↔ Courses; tracks academic history.
 - **Relationship:** Depends on Students/Courses; enables transcript generation.
 - **Key Variables:**  
@@ -239,7 +238,9 @@ CREATE TABLE Enrollments (
     - `grade` (`CHECK` for valid grade codes)
 - **ON DELETE CASCADE:** Auto-purges enrollments if students leave.
 - **Cool Tip:** Use composite index on `(student_id, semester)` for fast transcript queries.
+---
 
+### 🔗 Prerequisites Table
 ```sql
 CREATE TABLE Prerequisites (
     course_code CHAR(7) NOT NULL,
@@ -249,12 +250,13 @@ CREATE TABLE Prerequisites (
     FOREIGN KEY (prereq_code) REFERENCES Courses(course_code)
 ) ENGINE=InnoDB;
 ```
-### 🔗 Prerequisites Table
 - **Why exist?** Models recursive course dependencies; prevents circular references.
 - **Relationship:** Self-referencing to Courses; enforces curriculum integrity.
 - **Key Variables:** Composite PK (`course_code`, `prereq_code`).
 - **MySQL Tip:** Add trigger to prevent `course_code = prereq_code` loops.
+---
 
+### 🔗 Course_Assignments Table
 ```sql
 CREATE TABLE Course_Assignments (
     assignment_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -265,8 +267,6 @@ CREATE TABLE Course_Assignments (
     FOREIGN KEY (professor_id) REFERENCES Professors(professor_id)
 ) ENGINE=InnoDB;
 ```
-
-### 🔗 Course_Assignments Table
 - **Why exist?** Resolves M:N between Professors ↔ Courses; tracks teaching workload.
 - **Relationship:** Depends on Professors/Courses; enables faculty analytics.
 - **Key Variables:** `semester` (consistent format with Enrollments).
