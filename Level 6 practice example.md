@@ -57,6 +57,23 @@ erDiagram
 
 ## 🔧 Step 1: Database Setup
 
+Before running the SQL code to create your tables, you can also use MySQL Workbench's visual interface:
+
+1. **Open MySQL Workbench** and connect to your server.
+2. In the **left sidebar**, expand your `algonquin` schema under "SCHEMAS".
+3. **Right-click** on "Tables" and select **"Create Table..."**.
+4. In the dialog:
+    - Enter the table name (e.g., `Departments`).
+    - Add columns by specifying their names, data types, and constraints (e.g., set `dept_id` as `INT`, check "Primary Key", and enable "Auto Increment").
+    - For foreign keys, switch to the "Foreign Keys" tab and define relationships (e.g., link `dept_id` in `Programs` to `Departments`).
+5. Click **"Apply"** to generate and review the SQL statement, then click **"Apply"** again to execute.
+6. Repeat for each table as per the SQL definitions in this guide.
+
+> **Tip:** You can always switch between the visual editor and SQL editor. The visual tool helps avoid syntax errors and lets you see relationships graphically.
+
+---
+
+
 ### 1.1 Create Database
 
 **In Workbench:**
