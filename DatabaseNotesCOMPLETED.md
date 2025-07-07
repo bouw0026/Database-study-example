@@ -1,4 +1,3 @@
-```markdown
 # Database Design Study Guide (Algonquin College Example) - Enhanced
 
 ## 📌 Table of Contents
@@ -69,7 +68,6 @@
     Indexing, partitioning
 
 ---
-```
 ## 🧠 Conceptual Design Process
 
 **3-Step Workflow:**
