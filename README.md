@@ -46,6 +46,7 @@
 | `Professor`  | Faculty teaching courses             | Strong Entity |
 | `Course`     | Courses with program mapping         | Strong Entity |
 | `Enrollment` | Semester registrations               | Weak Entity   |
+
 ```
 
 ```mermaid
