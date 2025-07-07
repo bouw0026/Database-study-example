@@ -421,15 +421,15 @@ erDiagram
         CHAR(5) semester "FORMAT [FWS]YYYY"
     }
     
-    Departments ||--o{ Programs : "1:N\ncontains"
-    Departments ||--o{ Professors : "1:N\nemploys"
-    Programs ||--o{ Students : "1:N\nenrolls"
-    Programs ||--o{ Courses : "1:N\noffers"
-    Students ||--o{ Enrollments : "1:N\nregisters"
-    Courses ||--o{ Enrollments : "1:N\nhas"
-    Courses ||--|| Prerequisites : "M:N\nrequires"
-    Professors ||--o{ Course_Assignments : "1:N\nteaches"
-    Courses ||--o{ Course_Assignments : "1:N\nassigned"
+    Departments ||--o{ Programs : "1:contains"
+    Departments ||--o{ Professors : "1:employs"
+    Programs ||--o{ Students : "1:enrolls"
+    Programs ||--o{ Courses : "1:offers"
+    Students ||--o{ Enrollments : "1:registers"
+    Courses ||--o{ Enrollments : "1:has"
+    Courses ||--|| Prerequisites : "M:requires"
+    Professors ||--o{ Course_Assignments : "1:nteaches"
+    Courses ||--o{ Course_Assignments : "1:assigned"
 ```
 
 ## Full Schema Visualization (Markdown Table)
