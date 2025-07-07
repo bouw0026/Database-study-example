@@ -69,41 +69,18 @@ This guide is designed for beginners aiming for Bloom's Taxonomy Tier 6 (Create/
 ## 📊 ER Diagram: Database Design Overview
 
 **Why ER Diagrams?**  
-Entity-Relationship diagrams help visualize tables, relationships, and cardinality before coding.
+Entity-Relationship diagrams help visualize tables, relationships, and cardinality before coding. Analyzing these diagrams ensures your design is normalized and free from redundancy.
 
-```
-┌─────────────┐       ┌─────────────┐       ┌─────────────┐
-│ Departments │──────▶│  Programs   │──────▶│  Students   │
-│             │ 1:M   │             │ 1:M   │             │
-│ dept_id (PK)│       │program_id(PK)│       │student_id(PK)│
-│ name        │       │ name        │       │ first_name  │
-└─────────────┘       │ min_credits │       │ last_name   │
-                      │ dept_id (FK)│       │ email       │
-                      └─────────────┘       │program_id(FK)│
-                                           └─────────────┘
-                                                   │
-                                                   │ M:N
-                                                   ▼
-┌─────────────┐       ┌─────────────┐       ┌─────────────┐
-│ Professors  │──────▶│Course_Assign│       │ Enrollments │
-│             │ 1:M   │             │       │             │
-│professor_id │       │assignment_id│       │enrollment_id│
-│ first_name  │       │course_code  │       │ student_id  │
-│ last_name   │       │professor_id │       │ course_code │
-│ email       │       │ semester    │       │ semester    │
-│department_id│       └─────────────┘       │ grade       │
-└─────────────┘                            └─────────────┘
-                                                   ▲
-                                                   │ M:N
-                                                   │
-┌─────────────┐       ┌─────────────┐              │
-│   Courses   │──────▶│Prerequisites│──────────────┘
-│             │ 1:M   │             │
-│course_code  │       │course_code  │
-│ title       │       │prereq_code  │
-│ credits     │       └─────────────┘
-│ description │
-└─────────────┘
+```mermaid
+erDiagram
+    Departments ||--o{ Programs : contains
+    Programs ||--o{ Students : "enrolls"
+    Programs ||--o{ Courses : "offers"
+    Students ||--o{ Enrollments : "registers"
+    Courses ||--o{ Enrollments : "has"
+    Courses ||--o{ Prerequisites : "requires"
+    Professors ||--o{ Course_Assignments : "teaches"
+    Courses ||--o{ Course_Assignments : "assigned"
 ```
 
 **Relationships:**
