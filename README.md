@@ -33,6 +33,7 @@
 - Programs require minimum 60 credits for diplomas
 
 ---
+```
 
 ## 🗺 Database Design Roadmap
 
