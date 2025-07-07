@@ -1,4 +1,3 @@
-```markdown
 # Database Design Study Guide (Algonquin College Example)
 
 ## 📌 Table of Contents
@@ -33,7 +32,6 @@
 - Programs require minimum 60 credits for diplomas
 
 ---
-```
 
 ## 🗺 Database Design Roadmap
 
