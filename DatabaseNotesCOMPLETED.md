@@ -99,7 +99,7 @@
 - **Multi-valued Attributes:** Resolve with separate tables (e.g., Student_Hobbies table)
 
 ---
-
+```
 ## 📊 Complete ER Diagram
 
 ```mermaid
