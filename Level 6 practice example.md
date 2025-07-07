@@ -426,6 +426,69 @@ You have:
 - Try reverse engineering ER diagrams in Workbench (`Database > Reverse Engineer`)
 - Build a simple frontend to interact with your database
 
+Below is a comprehensive guide mapping essential MySQL concepts to their definitions, commands, and project-based examples. The graph visually connects each concept to its MySQL implementation.
+
+---
+
+### 🗂️ Table: MySQL Concepts, Definitions, and Examples
+
+| **Command/Concept**      | **Definition**                                                                 | **MySQL Example**                                                                                       | **Project Example**                                                                                   |
+|--------------------------|-------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| **Strong Entity**        | Table with its own primary key, independent existence                         | `CREATE TABLE Departments (...);`                                                                       | `CREATE TABLE Students (...);`                                                                        |
+| **Weak Entity**          | Table dependent on another table (uses FK)                                    | `CREATE TABLE Enrollments (..., FOREIGN KEY (student_id) REFERENCES Students(student_id));`             | `CREATE TABLE Prerequisites (...);`                                                                   |
+| **Primary Key (PK)**     | Uniquely identifies each row in a table                                       | `PRIMARY KEY (dept_id)`                                                                                 | `PRIMARY KEY (student_id)`                                                                            |
+| **Foreign Key (FK)**     | Enforces link between tables                                                  | `FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)`                                                 | `FOREIGN KEY (program_id) REFERENCES Programs(program_id)`                                            |
+| **1NF**                  | Atomic columns, no repeating groups                                           | `CREATE TABLE Courses (title VARCHAR(100));`                                                            | Each course has one title, not a list                                                                 |
+| **2NF**                  | 1NF + no partial dependency on PK                                             | Split tables to remove partial dependencies                                                             | Separate `Programs` and `Departments` tables                                                          |
+| **3NF**                  | 2NF + no transitive dependency                                                | Remove columns dependent on non-PK attributes                                                           | Move department name to `Departments` table                                                           |
+| **Index**                | Improves query speed                                                          | `CREATE INDEX idx_name ON Students(last_name);`                                                         | `CREATE INDEX idx_enrollment_grade ON Enrollments(grade);`                                            |
+| **Transaction**          | Group of SQL statements executed as a unit                                    | `START TRANSACTION; ... COMMIT;`                                                                        | Enroll student and update seat count together                                                         |
+| **ACID Properties**      | Atomicity, Consistency, Isolation, Durability                                 | Use transactions and InnoDB engine                                                                      | All enrollment steps succeed or fail together                                                         |
+| **Stored Procedure**     | Saved SQL logic for reuse                                                     | `CREATE PROCEDURE RegisterStudent(...) BEGIN ... END;`                                                  | `CALL RegisterStudent(100123456, 'CST8284', 'W2024');`                                                |
+| **Trigger**              | Auto-executes on table events                                                 | `CREATE TRIGGER before_insert ...`                                                                      | Update seat count after enrollment                                                                    |
+| **View**                 | Virtual table based on query                                                  | `CREATE VIEW StudentCourses AS SELECT ...`                                                              | `CREATE VIEW ProgramSummary AS SELECT ...`                                                            |
+| **Partitioning**         | Splits table data for performance                                             | `CREATE TABLE Enrollments (...) PARTITION BY RANGE (semester);`                                         | Partition enrollments by semester                                                                     |
+| **Normalization**        | Process to reduce redundancy, improve integrity                               | Apply 1NF, 2NF, 3NF steps                                                                               | Separate `Departments`, `Programs`, `Courses`                                                         |
+| **Denormalization**      | Add redundancy for performance                                                | Add department name to `Programs` table                                                                 | Store department name in `Programs` for faster reads                                                  |
+| **ER Diagram**           | Visual representation of entities/relations                                   | Use MySQL Workbench ERD tool                                                                            | Diagram showing `Students`, `Courses`, `Enrollments`                                                  |
+| **Composite Key**        | PK made of multiple columns                                                   | `PRIMARY KEY (course_code, prereq_code)`                                                                | `Prerequisites` table PK                                                                              |
+| **Referential Integrity**| Ensures FK values exist in parent table                                       | `FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)`                                                 | Can't assign a program to a non-existent department                                                   |
+
+---
+
+### 🗺️ Graph: MySQL Concepts Map
+
+```mermaid
+graph TD
+    A[Strong Entity] --> PK[Primary Key]
+    B[Weak Entity] --> FK[Foreign Key]
+    PK --> 1NF
+    1NF --> 2NF
+    2NF --> 3NF
+    3NF --> Normalization
+    Normalization --> Denormalization
+    PK --> CompositeKey[Composite Key]
+    FK --> ReferentialIntegrity[Referential Integrity]
+    A --> Index
+    B --> Index
+    A --> Transaction
+    Transaction --> ACID
+    A --> StoredProcedure
+    A --> Trigger
+    A --> View
+    A --> Partitioning
+    A --> ERDiagram[ER Diagram]
+```
+
+---
+
+### 📝 How to Use This Guide
+
+- **Review the table** for quick definitions and code patterns.
+- **Follow the graph** to understand how concepts connect in database design.
+- **Apply the examples** directly to your MySQL project for hands-on learning.
+
+---
 
 ## Script to auto-configure project 
 
@@ -602,67 +665,4 @@ SELECT CONCAT('mysqldump -u ac_admin -p algonquin > algonquin_backup_', DATE_FOR
 AS 'Backup Command';
 ```
 
-Below is a comprehensive guide mapping essential MySQL concepts to their definitions, commands, and project-based examples. The graph visually connects each concept to its MySQL implementation.
-
----
-
-### 🗂️ Table: MySQL Concepts, Definitions, and Examples
-
-| **Command/Concept**      | **Definition**                                                                 | **MySQL Example**                                                                                       | **Project Example**                                                                                   |
-|--------------------------|-------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
-| **Strong Entity**        | Table with its own primary key, independent existence                         | `CREATE TABLE Departments (...);`                                                                       | `CREATE TABLE Students (...);`                                                                        |
-| **Weak Entity**          | Table dependent on another table (uses FK)                                    | `CREATE TABLE Enrollments (..., FOREIGN KEY (student_id) REFERENCES Students(student_id));`             | `CREATE TABLE Prerequisites (...);`                                                                   |
-| **Primary Key (PK)**     | Uniquely identifies each row in a table                                       | `PRIMARY KEY (dept_id)`                                                                                 | `PRIMARY KEY (student_id)`                                                                            |
-| **Foreign Key (FK)**     | Enforces link between tables                                                  | `FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)`                                                 | `FOREIGN KEY (program_id) REFERENCES Programs(program_id)`                                            |
-| **1NF**                  | Atomic columns, no repeating groups                                           | `CREATE TABLE Courses (title VARCHAR(100));`                                                            | Each course has one title, not a list                                                                 |
-| **2NF**                  | 1NF + no partial dependency on PK                                             | Split tables to remove partial dependencies                                                             | Separate `Programs` and `Departments` tables                                                          |
-| **3NF**                  | 2NF + no transitive dependency                                                | Remove columns dependent on non-PK attributes                                                           | Move department name to `Departments` table                                                           |
-| **Index**                | Improves query speed                                                          | `CREATE INDEX idx_name ON Students(last_name);`                                                         | `CREATE INDEX idx_enrollment_grade ON Enrollments(grade);`                                            |
-| **Transaction**          | Group of SQL statements executed as a unit                                    | `START TRANSACTION; ... COMMIT;`                                                                        | Enroll student and update seat count together                                                         |
-| **ACID Properties**      | Atomicity, Consistency, Isolation, Durability                                 | Use transactions and InnoDB engine                                                                      | All enrollment steps succeed or fail together                                                         |
-| **Stored Procedure**     | Saved SQL logic for reuse                                                     | `CREATE PROCEDURE RegisterStudent(...) BEGIN ... END;`                                                  | `CALL RegisterStudent(100123456, 'CST8284', 'W2024');`                                                |
-| **Trigger**              | Auto-executes on table events                                                 | `CREATE TRIGGER before_insert ...`                                                                      | Update seat count after enrollment                                                                    |
-| **View**                 | Virtual table based on query                                                  | `CREATE VIEW StudentCourses AS SELECT ...`                                                              | `CREATE VIEW ProgramSummary AS SELECT ...`                                                            |
-| **Partitioning**         | Splits table data for performance                                             | `CREATE TABLE Enrollments (...) PARTITION BY RANGE (semester);`                                         | Partition enrollments by semester                                                                     |
-| **Normalization**        | Process to reduce redundancy, improve integrity                               | Apply 1NF, 2NF, 3NF steps                                                                               | Separate `Departments`, `Programs`, `Courses`                                                         |
-| **Denormalization**      | Add redundancy for performance                                                | Add department name to `Programs` table                                                                 | Store department name in `Programs` for faster reads                                                  |
-| **ER Diagram**           | Visual representation of entities/relations                                   | Use MySQL Workbench ERD tool                                                                            | Diagram showing `Students`, `Courses`, `Enrollments`                                                  |
-| **Composite Key**        | PK made of multiple columns                                                   | `PRIMARY KEY (course_code, prereq_code)`                                                                | `Prerequisites` table PK                                                                              |
-| **Referential Integrity**| Ensures FK values exist in parent table                                       | `FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)`                                                 | Can't assign a program to a non-existent department                                                   |
-
----
-
-### 🗺️ Graph: MySQL Concepts Map
-
-```mermaid
-graph TD
-    A[Strong Entity] --> PK[Primary Key]
-    B[Weak Entity] --> FK[Foreign Key]
-    PK --> 1NF
-    1NF --> 2NF
-    2NF --> 3NF
-    3NF --> Normalization
-    Normalization --> Denormalization
-    PK --> CompositeKey[Composite Key]
-    FK --> ReferentialIntegrity[Referential Integrity]
-    A --> Index
-    B --> Index
-    A --> Transaction
-    Transaction --> ACID
-    A --> StoredProcedure
-    A --> Trigger
-    A --> View
-    A --> Partitioning
-    A --> ERDiagram[ER Diagram]
-```
-
----
-
-### 📝 How to Use This Guide
-
-- **Review the table** for quick definitions and code patterns.
-- **Follow the graph** to understand how concepts connect in database design.
-- **Apply the examples** directly to your MySQL project for hands-on learning.
-
----
 
