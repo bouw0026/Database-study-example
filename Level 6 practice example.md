@@ -426,3 +426,179 @@ You have:
 - Try reverse engineering ER diagrams in Workbench (`Database > Reverse Engineer`)
 - Build a simple frontend to interact with your database
 
+
+## Script to auto-configure project 
+
+```sql
+-- 1. DATABASE SETUP
+DROP DATABASE IF EXISTS algonquin;
+CREATE DATABASE algonquin COLLATE utf8mb4_unicode_ci;
+USE algonquin;
+
+-- Create admin user
+DROP USER IF EXISTS 'ac_admin'@'localhost';
+CREATE USER 'ac_admin'@'localhost' IDENTIFIED BY 'secure_password_123';
+GRANT ALL PRIVILEGES ON algonquin.* TO 'ac_admin'@'localhost';
+FLUSH PRIVILEGES;
+
+-- 2. CREATE STRONG ENTITIES
+CREATE TABLE Departments (
+    dept_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+) ENGINE=InnoDB;
+
+CREATE TABLE Programs (
+    program_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    min_credits INT DEFAULT 60 CHECK (min_credits >= 60),
+    dept_id INT NOT NULL,
+    FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE Courses (
+    course_code CHAR(7) PRIMARY KEY CHECK (course_code REGEXP '^[A-Z]{3}[0-9]{4}$'),
+    title VARCHAR(100) NOT NULL,
+    credits INT NOT NULL CHECK (credits BETWEEN 1 AND 6),
+    description TEXT
+) ENGINE=InnoDB;
+
+CREATE TABLE Students (
+    student_id BIGINT PRIMARY KEY CHECK (student_id BETWEEN 100000000 AND 999999999),
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(120) UNIQUE CHECK (email REGEXP '^[a-z]+\\.[a-z]+@algonquinlive\\.com$'),
+    program_id INT NOT NULL,
+    birth_date DATE,
+    enrollment_date DATE DEFAULT (CURRENT_DATE),
+    FOREIGN KEY (program_id) REFERENCES Programs(program_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE Professors (
+    professor_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(120) UNIQUE CHECK (email LIKE '%@algonquinlive.com'),
+    department_id INT NOT NULL,
+    hire_date DATE,
+    FOREIGN KEY (department_id) REFERENCES Departments(dept_id)
+) ENGINE=InnoDB;
+
+-- 3. WEAK ENTITIES & RELATIONSHIPS
+CREATE TABLE Enrollments (
+    enrollment_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id BIGINT NOT NULL,
+    course_code CHAR(7) NOT NULL,
+    semester CHAR(5) NOT NULL CHECK (semester REGEXP '^[FWS][0-9]{4}$'),
+    grade CHAR(2) CHECK (grade IN ('A+', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F', 'W')),
+    FOREIGN KEY (student_id) REFERENCES Students(student_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_code) REFERENCES Courses(course_code)
+) ENGINE=InnoDB;
+
+CREATE TABLE Prerequisites (
+    course_code CHAR(7) NOT NULL,
+    prereq_code CHAR(7) NOT NULL,
+    PRIMARY KEY (course_code, prereq_code),
+    FOREIGN KEY (course_code) REFERENCES Courses(course_code),
+    FOREIGN KEY (prereq_code) REFERENCES Courses(course_code)
+) ENGINE=InnoDB;
+
+CREATE TABLE Course_Assignments (
+    assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+    course_code CHAR(7) NOT NULL,
+    professor_id INT NOT NULL,
+    semester CHAR(5) NOT NULL,
+    FOREIGN KEY (course_code) REFERENCES Courses(course_code),
+    FOREIGN KEY (professor_id) REFERENCES Professors(professor_id)
+) ENGINE=InnoDB;
+
+-- 4. OPTIMIZATIONS & SECURITY
+CREATE INDEX idx_student_name ON Students(last_name, first_name);
+CREATE INDEX idx_course_title ON Courses(title);
+CREATE INDEX idx_enrollment_semester ON Enrollments(semester);
+CREATE INDEX idx_enrollment_grade ON Enrollments(grade);
+
+DROP ROLE IF EXISTS 'professor', 'student';
+CREATE ROLE 'professor';
+GRANT SELECT, UPDATE(grade) ON algonquin.Enrollments TO 'professor';
+
+CREATE ROLE 'student';
+GRANT SELECT ON algonquin.Courses TO 'student';
+GRANT SELECT ON algonquin.Enrollments TO 'student';
+
+DROP USER IF EXISTS 'dr_smith'@'localhost';
+CREATE USER 'dr_smith'@'localhost' IDENTIFIED BY 'prof_password';
+GRANT 'professor' TO 'dr_smith'@'localhost';
+
+DELIMITER //
+CREATE PROCEDURE RegisterStudent(
+    IN student_id BIGINT,
+    IN course_code CHAR(7),
+    IN semester CHAR(5)
+)
+BEGIN
+    INSERT INTO Enrollments (student_id, course_code, semester)
+    VALUES (student_id, course_code, semester);
+END //
+
+CREATE FUNCTION CalculateGPA(student BIGINT) RETURNS DECIMAL(3,2)
+DETERMINISTIC
+BEGIN
+    DECLARE total_points DECIMAL(10,2) DEFAULT 0;
+    DECLARE total_credits INT DEFAULT 0;
+    
+    SELECT SUM(
+        CASE grade
+            WHEN 'A+' THEN 4.5 * credits
+            WHEN 'A'  THEN 4.0 * credits
+            WHEN 'B+' THEN 3.5 * credits
+            WHEN 'B'  THEN 3.0 * credits
+            WHEN 'C+' THEN 2.5 * credits
+            WHEN 'C'  THEN 2.0 * credits
+            WHEN 'D+' THEN 1.5 * credits
+            WHEN 'D'  THEN 1.0 * credits
+            ELSE 0
+        END
+    ), SUM(credits)
+    INTO total_points, total_credits
+    FROM Enrollments e
+    JOIN Courses c ON e.course_code = c.course_code
+    WHERE e.student_id = student AND grade NOT IN ('W', 'F');
+    
+    RETURN total_points / NULLIF(total_credits, 0);
+END //
+DELIMITER ;
+
+-- 5. SAMPLE DATA
+INSERT INTO Departments (name) VALUES 
+('School of Advanced Technology'),
+('School of Business'),
+('School of Health Sciences');
+
+INSERT INTO Programs (name, min_credits, dept_id) VALUES
+('Computer Programming', 60, 1),
+('Business Administration', 60, 2),
+('Nursing', 75, 3);
+
+INSERT INTO Courses (course_code, title, credits) VALUES
+('CST8284', 'Database Systems', 3),
+('CST8285', 'Web Programming', 3),
+('BUS2301', 'Business Communications', 4),
+('NUR1010', 'Anatomy Fundamentals', 6);
+
+INSERT INTO Students (student_id, first_name, last_name, email, program_id) VALUES
+(100123456, 'John', 'Doe', 'john.doe@algonquinlive.com', 1),
+(100654321, 'Jane', 'Smith', 'jane.smith@algonquinlive.com', 3);
+
+-- 6. VERIFICATION QUERIES
+SELECT 'Database created successfully!' AS Status;
+
+-- Example query: List all programs
+SELECT p.name AS program, d.name AS department, p.min_credits
+FROM Programs p
+JOIN Departments d ON p.dept_id = d.dept_id;
+
+-- Backup command reminder (run in terminal)
+SELECT CONCAT('mysqldump -u ac_admin -p algonquin > algonquin_backup_', DATE_FORMAT(NOW(), '%Y-%m-%d'), '.sql') 
+AS 'Backup Command';
+```
+
