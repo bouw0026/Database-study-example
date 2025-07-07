@@ -1,5 +1,4 @@
 ```markdown
-```markdown
 # Database Design Study Guide (Algonquin College Example)
 
 ## 📌 Table of Contents
