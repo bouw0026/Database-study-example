@@ -66,7 +66,7 @@ This guide is designed for beginners aiming for Bloom's Taxonomy Tier 6 (Create/
 
 ---
 
-### 1.1 Why ER Diagrams?
+### Why ER Diagrams?
 
 Entity-Relationship diagrams help visualize tables, relationships, and cardinality before coding. Analyzing these diagrams ensures your design is normalized and free from redundancy.
 
@@ -84,7 +84,7 @@ erDiagram
 
 ---
 
-### 1.2 Table Design Rationale & Key Terms
+### Table Design Rationale & Key Terms
 
 #### **Departments**
 - **Why:** Represents academic divisions. Each department can offer multiple programs.
