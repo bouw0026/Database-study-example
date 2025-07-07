@@ -1,5 +1,7 @@
 # Database Design Study Guide (Algonquin College Example)
 
+### Use the Project Level 6 to learn through usage. Create and solve a Database from Scratch! 
+
 ## 📌 Table of Contents
 1. [Project Overview](#-project-overview)
 2. [Database Design Roadmap](#-database-design-roadmap)
