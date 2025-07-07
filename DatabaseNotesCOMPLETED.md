@@ -312,7 +312,7 @@ CREATE TABLE BusinessRules (
 );
 ```
 
-```markdown
+---
 ## 🎓 Key Terminology
 
 | Term              | Definition                                                | MySQL Example                                                     | College Example                      |
