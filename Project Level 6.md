@@ -363,7 +363,6 @@ DELIMITER ;
 ## Complete ER Diagram with Attributes (Mermaid Syntax)
 ```mermaid
 erDiagram
-erDiagram
     Departments {
         INT dept_id PK "AUTO_INCREMENT"
         VARCHAR(50) name "UNIQUE NOT NULL"
