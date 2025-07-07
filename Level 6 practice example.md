@@ -61,7 +61,7 @@ graph TD
     A[Open MySQL Workbench and connect to your server]
     B[Expand 'algonquin' schema under SCHEMAS]
     C[Right-click 'Tables' and select 'Create Table...']
-    D[Enter table name (e.g., Departments)]
+    D[Enter table name, e.g., Departments]
     E[Add columns: names, data types, constraints]
     F[Set Primary Key and Auto Increment as needed]
     G[Switch to 'Foreign Keys' tab for relationships]
