@@ -118,6 +118,7 @@ erDiagram
     - Windows: Open "MySQL Installer" or "MySQL Notifier"
     - macOS/Linux: `sudo systemctl start mysql`
 - **Verify Server is Running**: Connect via Workbench and open the SQL editor.
+---
 
 ### 2.2 Create Database and Admin User
 
