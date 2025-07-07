@@ -118,7 +118,6 @@ erDiagram
     - Windows: Open "MySQL Installer" or "MySQL Notifier"
     - macOS/Linux: `sudo systemctl start mysql`
 - **Verify Server is Running**: Connect via Workbench and open the SQL editor.
----
 
 ### 2.2 Create Database and Admin User
 
@@ -361,6 +360,92 @@ END //
 DELIMITER ;
 ```
 
+## Complete ER Diagram with Attributes (Mermaid Syntax)
+```mermaid
+erDiagram
+erDiagram
+    Departments {
+        INT dept_id PK "AUTO_INCREMENT"
+        VARCHAR(50) name "UNIQUE NOT NULL"
+    }
+    
+    Programs {
+        INT program_id PK "AUTO_INCREMENT"
+        VARCHAR(50) name "UNIQUE NOT NULL"
+        INT min_credits "DEFAULT 60, CHECK ≥60"
+        INT dept_id FK "NOT NULL"
+    }
+    
+    Students {
+        BIGINT student_id PK "CHECK 9-digit"
+        VARCHAR(50) first_name "NOT NULL"
+        VARCHAR(50) last_name "NOT NULL"
+        VARCHAR(120) email "UNIQUE, INSTITUTIONAL FORMAT"
+        INT program_id FK "NOT NULL"
+        DATE birth_date
+        DATE enrollment_date "DEFAULT CURRENT_DATE"
+    }
+    
+    Professors {
+        INT professor_id PK "AUTO_INCREMENT"
+        VARCHAR(50) first_name "NOT NULL"
+        VARCHAR(50) last_name "NOT NULL"
+        VARCHAR(120) email "UNIQUE, INSTITUTIONAL FORMAT"
+        INT department_id FK "NOT NULL"
+        DATE hire_date
+    }
+    
+    Courses {
+        CHAR(7) course_code PK "FORMAT XXX####"
+        VARCHAR(100) title "NOT NULL"
+        INT credits "CHECK 1-6"
+        TEXT description
+    }
+    
+    Enrollments {
+        INT enrollment_id PK "AUTO_INCREMENT"
+        BIGINT student_id FK "NOT NULL"
+        CHAR(7) course_code FK "NOT NULL"
+        CHAR(5) semester "FORMAT [FWS]YYYY"
+        CHAR(2) grade "VALID GRADE VALUES"
+    }
+    
+    Prerequisites {
+        CHAR(7) course_code FK "NOT NULL"
+        CHAR(7) prereq_code FK "NOT NULL"
+    }
+    
+    Course_Assignments {
+        INT assignment_id PK "AUTO_INCREMENT"
+        CHAR(7) course_code FK "NOT NULL"
+        INT professor_id FK "NOT NULL"
+        CHAR(5) semester "FORMAT [FWS]YYYY"
+    }
+    
+    Departments ||--o{ Programs : "1:N\ncontains"
+    Departments ||--o{ Professors : "1:N\nemploys"
+    Programs ||--o{ Students : "1:N\nenrolls"
+    Programs ||--o{ Courses : "1:N\noffers"
+    Students ||--o{ Enrollments : "1:N\nregisters"
+    Courses ||--o{ Enrollments : "1:N\nhas"
+    Courses ||--|| Prerequisites : "M:N\nrequires"
+    Professors ||--o{ Course_Assignments : "1:N\nteaches"
+    Courses ||--o{ Course_Assignments : "1:N\nassigned"
+```
+
+## Full Schema Visualization (Markdown Table)
+
+| Table               | Columns (PK in **bold**, FK in *italic*)                                                                 | Data Types & Constraints                                                                                  | Relationships                                 |
+|---------------------|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|-----------------------------------------------|
+| Departments         | **dept_id**, name                                                                                       | INT AI, VARCHAR(50) UNIQUE NOT NULL                                                                       | Parent to Programs, Professors                |
+| Programs            | **program_id**, name, min_credits, *dept_id*                                                            | INT AI, VARCHAR(50) UNIQUE NOT NULL, INT DEFAULT 60 CHECK ≥60, INT NOT NULL                               | Child of Departments, Parent to Students      |
+| Students            | **student_id**, first_name, last_name, email, *program_id*, birth_date, enrollment_date                 | BIGINT (9-digit), VARCHAR(50) NOT NULL, VARCHAR(120) UNIQUE (institutional format), INT NOT NULL, DATE, DATE DEFAULT CURRENT_DATE | Child of Programs, Parent to Enrollments      |
+| Professors          | **professor_id**, first_name, last_name, email, *department_id*, hire_date                              | INT AI, VARCHAR(50) NOT NULL, VARCHAR(120) UNIQUE (institutional format), INT NOT NULL, DATE              | Child of Departments, Parent to Course_Assignments |
+| Courses             | **course_code**, title, credits, description                                                            | CHAR(7) (XXX####), VARCHAR(100) NOT NULL, INT CHECK 1-6, TEXT                                             | Parent to Enrollments, Prerequisites, Course_Assignments |
+| Enrollments         | **enrollment_id**, *student_id*, *course_code*, semester, grade                                         | INT AI, BIGINT NOT NULL, CHAR(7) NOT NULL, CHAR(5) [FWS]YYYY, CHAR(2) (valid grades)                      | Weak entity (Students × Courses)              |
+| Prerequisites       | **course_code**, **prereq_code**                                                                        | CHAR(7) NOT NULL (both), COMPOSITE PK                                                                     | Recursive M:N relationship on Courses         |
+| Course_Assignments  | **assignment_id**, *course_code*, *professor_id*, semester                                              | INT AI, CHAR(7) NOT NULL, INT NOT NULL, CHAR(5) [FWS]YYYY                                                 | Weak entity (Professors × Courses)            |
+
 ---
 
 ## 5. Apply: Insert Sample Data
@@ -485,19 +570,19 @@ GROUP BY p.professor_id;
 
 - The same visualization approach works for:
         - **Hospital Systems:**
-```mermaid
-erDiagram
-Departments ||--o{ Doctors : employs
-Patients ||--o{ Appointments : schedules
-Doctors ||--o{ Appointments : attends
-```
-- **Inventory Management:**
-```mermaid
-erDiagram
-Warehouses ||--o{ Inventory : stores
-Products ||--o{ Inventory : contains
-Suppliers ||--o{ PurchaseOrders : supplies
-```
+                ```mermaid
+                erDiagram
+                        Departments ||--o{ Doctors : employs
+                        Patients ||--o{ Appointments : schedules
+                        Doctors ||--o{ Appointments : attends
+                ```
+        - **Inventory Management:**
+                ```mermaid
+                erDiagram
+                        Warehouses ||--o{ Inventory : stores
+                        Products ||--o{ Inventory : contains
+                        Suppliers ||--o{ PurchaseOrders : supplies
+                ```
 
 ---
 
