@@ -48,8 +48,6 @@
 | `Course`     | Courses with program mapping         | Strong Entity |
 | `Enrollment` | Semester registrations               | Weak Entity   |
 
-```
-
 ```mermaid
 erDiagram
     STUDENT ||--o{ ENROLLMENT : "enrolls_in"
